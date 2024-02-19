@@ -1,0 +1,25 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: #f0f0f0;
+  }
+  
+  #game {
+    margin: 0 auto;
+    width: 600px;
+  }
+  
+  #player, #monster {
+    margin-bottom: 20px;
+  }
+  
+  #player-image, #monster-image {
+    width: 200px;
+    height: 200px;
+  }
+  
+  button {
+    padding: 10px 20px;
+    font-size: 18px;
+    cursor: pointer;
+  }

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monster Game Results</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f7f7f7;
+  }
+  .results-container {
+    text-align: center;
+  }
+  .results-container h1 {
+    color: #333;
+  }
+  .results-container p {
+    color: #666;
+    font-size: 18px;
+    margin: 10px 0;
+  }
+</style>
+</head>
+<body>
+<div class="results-container">
+  <h1>Game Results</h1>
+  <p id="game-duration">Time Played: </p>
+  <p id="remaining-lives">Remaining Lives: </p>
+  <button id="play-again-btn">Играть сначала</button>
+</div>
+<script>
+
+  function getGameResults() {
+    const gameResults = JSON.parse(localStorage.getItem('gameResults'));
+    return gameResults;
+  }
+
+  function formatTime(timeInSeconds) {
+    var minutes = Math.floor(timeInSeconds / 60);
+    var seconds = timeInSeconds % 60;
+    return minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+  }
+
+  function displayGameResults() {
+    const results = getGameResults();
+    if (results) {
+      document.getElementById('game-duration').textContent += formatTime(results.duration);
+      document.getElementById('remaining-lives').textContent += results.lives;
+    }
+  }
+
+  displayGameResults();
+
+  document.getElementById('play-again-btn').addEventListener('click', function() {
+
+    window.location.href = 'index.html';
+  });
+</script>
+</body>
+</html>

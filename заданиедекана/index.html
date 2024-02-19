@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monster Game</title>
+<style>
+  body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+  }
+  #map {
+    width: 100%;
+    height: 100%;
+    background: url('e05cb2a4a420a4e89fda38cddcec13f2.jpg') no-repeat center center fixed;
+    background-size: cover;
+    position: relative;
+  }
+  .character {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    background-size: cover;
+  }
+  #player {
+    background-image: url('qwerty.png');
+    left: 0;
+    top: 0;
+  }
+  .monster {
+    background-image: url('unn435345d.png');
+  }
+  .trap {
+    background-image: url('Houten_Barricade.png');
+  }
+  #lives {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    display: flex;
+  }
+  .life {
+    width: 12px;
+    height: 12px;
+    background-image: url('5a1913869352a15ff1f445cb.png');
+    background-size: cover;
+    margin-right: 3px;
+  }
+  #timer, #trap-count, #monster-count {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 5px;
+    background-color: rgba(255, 255, 255, 0.5);
+    color: #000;
+    border-radius: 5px;
+  }
+</style>
+</head>
+<body>
+<div id="map">
+  <div id="player" class="character">
+    <div id="lives"></div>
+  </div>
+  <div id="trap1" class="character trap"></div>
+  <div id="trap2" class="character trap"></div>
+  <div id="monster1" class="character monster"></div>
+  <div id="monster2" class="character monster"></div>
+  <div id="monster3" class="character monster"></div>
+  <div id="monster4" class="character monster"></div>
+  <div id="monster5" class="character monster"></div>
+  <div id="monster6" class="character monster"></div>
+  <div id="monster7" class="character monster"></div>
+  <div id="monster8" class="character monster"></div>
+  <div id="monster9" class="character monster"></div>
+  <div id="timer">0</div>
+  <div id="trap-count">2</div>
+  <div id="monster-count">9</div>
+</div>
+<script>
+  const map = document.getElementById('map');
+  const player = document.getElementById('player');
+  const livesContainer = document.getElementById('lives');
+  const traps = Array.from(document.getElementsByClassName('trap'));
+  const monsters = Array.from(document.getElementsByClassName('monster'));
+  const timerElement = document.getElementById('timer');
+  const trapCountElement = document.getElementById('trap-count');
+  const monsterCountElement = document.getElementById('monster-count');
+  let lives = 5;
+  let timer = 0;
+  let timerInterval;
+
+  function randomPosition() {
+    return {
+      x: Math.random() * map.offsetWidth,
+      y: Math.random() * map.offsetHeight
+    };
+  }
+
+  function spawnCharacter(character) {
+    const position = randomPosition();
+    character.style.left = position.x + 'px';
+    character.style.top = position.y + 'px';
+  }
+  function moveCharacter(character, dx, dy) {
+    const currentPosition = {
+      x: parseFloat(character.style.left) || 0,
+      y: parseFloat(character.style.top) || 0
+    };
+    const newPosition = {
+      x: Math.max(0, Math.min(currentPosition.x + dx, map.offsetWidth - character.offsetWidth)),
+      y: Math.max(0, Math.min(currentPosition.y + dy, map.offsetHeight - character.offsetHeight))
+    };
+    character.style.left = newPosition.x + 'px';
+    character.style.top = newPosition.y + 'px';
+  }
+
+  function moveMonstersTowardsPlayer() {
+    monsters.forEach(monster => {
+      const monsterRect = monster.getBoundingClientRect();
+      const playerRect = player.getBoundingClientRect();
+
+      const dx = playerRect.x - monsterRect.x;
+      const dy = playerRect.y - monsterRect.y;
+
+      const angle = Math.atan2(dy, dx);
+      const speed = 12;
+
+      const changeX = Math.cos(angle) * speed;
+      const changeY = Math.sin(angle) * speed;
+
+      monster.style.transform = `rotate(${angle}rad)`;
+
+      moveCharacter(monster, changeX, changeY);
+      checkCollision(player, monster);
+    });
+  }
+
+  function checkCollision(player, target) {
+    const playerRect = player.getBoundingClientRect();
+    const targetRect = target.getBoundingClientRect();
+
+    if (playerRect.right > targetRect.left &&
+        playerRect.left < targetRect.right &&
+        playerRect.bottom > targetRect.top &&
+        playerRect.top < targetRect.bottom) {
+      if (target.classList.contains('monster')) {
+        lives--;
+        updateLives();
+        spawnCharacter(target);
+      } else if (target.classList.contains('trap')) {
+        lives--;
+        updateLives();
+      }
+
+      if (lives <= 0) {
+        alert('Game Over!');
+        clearInterval(moveMonstersInterval);
+      }
+    }
+  }
+
+  function updateLives() {
+    livesContainer.innerHTML = '';
+    for (let i = 0; i < lives; i++) {
+      const life = document.createElement('div');
+      life.classList.add('life');
+      life.style.left = i * 40 + 'px';
+      livesContainer.appendChild(life);
+    }
+  }
+
+  monsters.forEach(spawnCharacter);
+  traps.forEach(spawnCharacter);
+  updateLives();
+
+  moveMonstersInterval = setInterval(moveMonstersTowardsPlayer, 2000);
+
+  document.addEventListener('keydown', (event) => {
+    const key = event.key;
+    const step = 10;
+
+    switch (key) {
+      case 'ArrowUp':
+        moveCharacter(player, 0, -step);
+        break;
+      case 'ArrowDown':
+        moveCharacter(player, 0, step);
+        break;
+      case 'ArrowLeft':
+        moveCharacter(player, -step, 0);
+        break;
+      case 'ArrowRight':
+        moveCharacter(player, step, 0);
+        break;
+      default:
+        break;
+    }
+  });
+
+</script>
+</body>
+</html>
